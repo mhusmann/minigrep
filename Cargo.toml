@@ -6,3 +6,4 @@ authors = ["Michael Husmann <michaelhusmann@gmail.com>"]
 [dependencies]
 clap = "2.29.0"
 glob = "0.2.11"
+ansi_term = "0.10.2"

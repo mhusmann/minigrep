@@ -1,10 +1,13 @@
 extern crate clap;
 extern crate glob;
+extern crate ansi_term;
 use std::fs::File;
 use std::io::prelude::*;
 use std::error::Error;
+use std::path::PathBuf;
 use clap::{Arg, App};
 
+use ansi_term::Color::Red;
 // todo
 // search for globs
 
@@ -65,6 +68,9 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
             Ok(f) => f,
             Err(e) => panic!("Could not open {}: {}", path.display(), e.description()),
         };
+        // println!("{}", path.display());
+        let p = PathBuf::from(path);
+        println!("{}", Red.paint(p.into_os_string().into_string().unwrap()));
         let mut contents = String::new();
         f.read_to_string(&mut contents)?;
         let results = if config.case_sensitive {
@@ -73,7 +79,7 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
             search_case_insensitive(&config.query, &contents)
         };
         for line in results {
-            println!("{}", line);
+            println!("{:?}", line);
         }
     }
     Ok(())
