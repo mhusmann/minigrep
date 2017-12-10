@@ -8,8 +8,6 @@ use std::path::PathBuf;
 use clap::{Arg, App};
 
 use ansi_term::Color::Red;
-// todo
-// search for globs
 
 fn get_commandline() -> (bool, String, String) {
     let matches = App::new("commandline")
