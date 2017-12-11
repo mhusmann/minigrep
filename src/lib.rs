@@ -58,10 +58,9 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
         match path {
             Ok(path) => {
                 let mut f: File = File::open(&path)?;
-                let p = PathBuf::from(path);
                 println!(
                     "{}",
-                    Yellow.paint(p.into_os_string().into_string().unwrap())
+                    Yellow.paint(PathBuf::from(path).into_os_string().into_string().unwrap())
                 );
                 let mut contents = String::new();
                 f.read_to_string(&mut contents)?;
