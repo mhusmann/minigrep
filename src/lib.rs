@@ -54,31 +54,29 @@ impl Config {
 }
 
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
-    let mut vec: Vec<std::path::PathBuf> = Vec::new();
     for pth in glob::glob(&config.filename).expect("Failed to read file pattern") {
         match pth {
-            Ok(pth) => vec.push(pth),
+            Ok(pth) => {
+                let mut f: File = match File::open(&pth) {
+                    Ok(f) => f,
+                    Err(e) => panic!("Could not open {}: {}", pth.display(), e.description()),
+                };
+                // println!("{}", path.display());
+                let p = PathBuf::from(pth);
+                println!("{}", Red.paint(p.into_os_string().into_string().unwrap()));
+                let mut contents = String::new();
+                f.read_to_string(&mut contents)?;
+                let results = if config.case_sensitive {
+                    search(&config.query, &contents)
+                } else {
+                    search_case_insensitive(&config.query, &contents)
+                };
+                for line in results {
+                    println!("{:?}", line);
+                }
+            }
             Err(e) => eprintln!("Error: {}", e),
         };
-    }
-    for path in vec {
-        let mut f: File = match File::open(&path) {
-            Ok(f) => f,
-            Err(e) => panic!("Could not open {}: {}", path.display(), e.description()),
-        };
-        // println!("{}", path.display());
-        let p = PathBuf::from(path);
-        println!("{}", Red.paint(p.into_os_string().into_string().unwrap()));
-        let mut contents = String::new();
-        f.read_to_string(&mut contents)?;
-        let results = if config.case_sensitive {
-            search(&config.query, &contents)
-        } else {
-            search_case_insensitive(&config.query, &contents)
-        };
-        for line in results {
-            println!("{:?}", line);
-        }
     }
     Ok(())
 }
