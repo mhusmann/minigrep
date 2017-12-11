@@ -60,11 +60,11 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
     for path in glob::glob(&config.filename).expect("Failed to read file pattern") {
         match path {
             Ok(path) => {
-                let mut f: File = File::open(&path)?;
                 println!(
                     "{}",
-                    Yellow.paint(PathBuf::from(path).into_os_string().into_string().unwrap())
+                    Yellow.paint(PathBuf::from(&path).into_os_string().into_string().unwrap())
                 );
+                let mut f: File = File::open(&path)?;
                 let mut contents = String::new();
                 f.read_to_string(&mut contents)?;
                 let results = if config.case_sensitive {
