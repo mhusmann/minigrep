@@ -10,24 +10,27 @@ use clap::{Arg, App};
 use ansi_term::Color::Yellow;
 
 fn get_commandline() -> (bool, String, String) {
-    let matches = App::new("commandline")
+    let matches = App::new("minigrep")
         .version("0.0.1")
         .author("Michael Husmann <michaelhusmann@gmail.com>")
-        .about("My own grep tool")
+        .about(
+            "My minigrep tool. This is a bit extended to the version
+which is shown in the Rust book.",
+        )
         .arg(
             Arg::with_name("search-pattern")
-                .help("the pattern you are looking for")
+                .help("The search pattern you are looking for")
                 .required(true)
                 .index(1),
         )
         .arg(
             Arg::with_name("file")
-                .help("the file to investigate")
+                .help("The file to investigate. Wildcards are allowed!")
                 .required(true)
                 .index(2),
         )
         .arg(Arg::with_name("i").short("i").long("ignore").help(
-            "case sensitive search",
+            "Search ignore case",
         ))
         .get_matches();
     let ignorecase = !matches.is_present("i");
