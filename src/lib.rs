@@ -7,7 +7,7 @@ use std::error::Error;
 use std::path::PathBuf;
 use clap::{Arg, App};
 
-use ansi_term::Color::Red;
+use ansi_term::Color::Yellow;
 
 fn get_commandline() -> (bool, String, String) {
     let matches = App::new("commandline")
@@ -54,16 +54,15 @@ impl Config {
 }
 
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
-    for pth in glob::glob(&config.filename).expect("Failed to read file pattern") {
-        match pth {
-            Ok(pth) => {
-                let mut f: File = match File::open(&pth) {
-                    Ok(f) => f,
-                    Err(e) => panic!("Could not open {}: {}", pth.display(), e.description()),
-                };
-                // println!("{}", path.display());
-                let p = PathBuf::from(pth);
-                println!("{}", Red.paint(p.into_os_string().into_string().unwrap()));
+    for path in glob::glob(&config.filename).expect("Failed to read file pattern") {
+        match path {
+            Ok(path) => {
+                let mut f: File = File::open(&path)?;
+                let p = PathBuf::from(path);
+                println!(
+                    "{}",
+                    Yellow.paint(p.into_os_string().into_string().unwrap())
+                );
                 let mut contents = String::new();
                 f.read_to_string(&mut contents)?;
                 let results = if config.case_sensitive {
