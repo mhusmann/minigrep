@@ -105,14 +105,14 @@ impl Config {
     Ok(())
 } */
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
+    let mut temp_contents: Vec<u8> = Vec::new();
     for path in glob::glob(&config.filename()).expect("Failed to read file pattern") {
         match path {
             Ok(path) => {
                 let f: File = File::open(&path)?;
                 let mut buf_reader = BufReader::new(f);
-                let mut contents: Vec<u8> = Vec::new();
-                buf_reader.read_to_end(&mut contents)?;
-                let contents = &String::from_utf8_lossy(&contents);
+                buf_reader.read_to_end(&mut temp_contents)?;
+                let contents = &String::from_utf8_lossy(&temp_contents);
                 let results = if config.case_sensitive() {
                     search(&config.query(), &contents)
                 } else {
@@ -131,6 +131,7 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
             }
             Err(e) => eprintln!("Error: {}", e),
         };
+        temp_contents.clear();
     }
     Ok(())
 }
