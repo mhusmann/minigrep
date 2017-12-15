@@ -62,11 +62,11 @@ impl Config {
             case_sensitive,
         })
     }
-    pub fn filename(&self) -> String {
-        self.filename.to_string()
+    pub fn filename<'a>(&'a self) -> &'a str {
+        &self.filename
     }
-    pub fn query(&self) -> String {
-        self.query.to_string()
+    pub fn query<'a>(&'a self) -> &'a str {
+        &self.query
     }
     pub fn case_sensitive(&self) -> bool {
         self.case_sensitive
