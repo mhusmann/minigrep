@@ -1,3 +1,10 @@
+/* helper for minigrep
+extended 
+    by commandline -- very nice
+    by using globs to find files
+    highlighting found path 
+*/
+
 extern crate clap;
 extern crate glob;
 extern crate ansi_term;
@@ -7,6 +14,7 @@ use std::error::Error;
 use std::path::PathBuf;
 use clap::{Arg, App};
 
+// * need this to colourize my Path
 use ansi_term::Color::Yellow;
 
 fn get_commandline() -> (bool, String, String) {
@@ -14,8 +22,8 @@ fn get_commandline() -> (bool, String, String) {
         .version("0.0.1")
         .author("Michael Husmann <michaelhusmann@gmail.com>")
         .about(
-            "My minigrep tool. This is a bit extended to the version
-which is shown in the Rust book.",
+            "My minigrep tool. This is a bit extended to the version \
+            which is shown in the Rust book.",
         )
         .arg(
             Arg::with_name("search-pattern")
@@ -41,9 +49,9 @@ which is shown in the Rust book.",
 }
 
 pub struct Config {
-    pub query: String,
-    pub filename: String,
-    pub case_sensitive: bool,
+    query: String,
+    filename: String,
+    case_sensitive: bool,
 }
 impl Config {
     pub fn new() -> Result<Config, &'static str> {
@@ -54,22 +62,31 @@ impl Config {
             case_sensitive,
         })
     }
+    pub fn filename(&self) -> String {
+        self.filename.to_string()
+    }
+    pub fn query(&self) -> String {
+        self.query.to_string()
+    }
+    pub fn case_sensitive(&self) -> bool {
+        self.case_sensitive
+    }
 }
 
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
-    for path in glob::glob(&config.filename).expect("Failed to read file pattern") {
+    for path in glob::glob(&config.filename()).expect("Failed to read file pattern") {
         match path {
             Ok(path) => {
                 let mut f: File = File::open(&path)?;
                 let mut contents = String::new();
                 f.read_to_string(&mut contents)?;
-                let results = if config.case_sensitive {
-                    search(&config.query, &contents)
+                let results = if config.case_sensitive() {
+                    search(&config.query(), &contents)
                 } else {
-                    search_case_insensitive(&config.query, &contents)
+                    search_case_insensitive(&config.query(), &contents)
                 };
+                // show path only when something was found
                 if results.len() > 0 {
-                    // show path only when something was found
                     println!(
                         "{}",
                         Yellow.paint(PathBuf::from(&path).into_os_string().into_string().unwrap())
