@@ -10,6 +10,7 @@ extern crate glob;
 extern crate ansi_term;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::BufReader;
 use std::error::Error;
 use std::path::PathBuf;
 use clap::{Arg, App};
@@ -62,6 +63,7 @@ impl Config {
             case_sensitive,
         })
     }
+    // returning a pointer, so I must not create a new String
     pub fn filename<'a>(&'a self) -> &'a str {
         &self.filename
     }
@@ -73,13 +75,44 @@ impl Config {
     }
 }
 
+/* pub fn run(config: &Config) -> Result<(), Box<Error>> {
+    for path in glob::glob(&config.filename()).expect("Failed to read file pattern") {
+        match path {
+            Ok(path) => {
+                let f: File = File::open(&path)?;
+                let mut buf_reader = BufReader::new(f);
+                let mut contents = String::new();
+                buf_reader.read_to_string(&mut contents)?;
+                let results = if config.case_sensitive() {
+                    search(&config.query(), &contents)
+                } else {
+                    search_case_insensitive(&config.query(), &contents)
+                };
+                // show path only when something was found
+                if results.len() > 0 {
+                    println!(
+                        "{}",
+                        Yellow.paint(PathBuf::from(&path).into_os_string().into_string().unwrap())
+                    );
+                    for line in results {
+                        println!("{:?}", line);
+                    }
+                }
+            }
+            Err(e) => eprintln!("Error: {}", e),
+        };
+    }
+    Ok(())
+} */
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
     for path in glob::glob(&config.filename()).expect("Failed to read file pattern") {
         match path {
             Ok(path) => {
-                let mut f: File = File::open(&path)?;
-                let mut contents = String::new();
-                f.read_to_string(&mut contents)?;
+                let f: File = File::open(&path)?;
+                let mut buf_reader = BufReader::new(f);
+                let mut contents: Vec<u8> = Vec::new();
+                buf_reader.read_to_end(&mut contents)?;
+                let contents = &String::from_utf8_lossy(&contents);
                 let results = if config.case_sensitive() {
                     search(&config.query(), &contents)
                 } else {
